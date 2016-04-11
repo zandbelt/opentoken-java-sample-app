@@ -15,8 +15,11 @@ public class SampleServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 5984011966182486047L;
 
+	/* the key for storing user identity data in the session */
 	private static final String USER_INFO = "USER_INFO";
+	/* path to properties file with application configuration, relative to WAR */
 	private static final String CONFIGURATION_FILENAME = "/sample.properties";
+	/* path to the OpenToken agent configuration file, relative to WAR */
 	private static final String AGENT_CONFIGURATION_FILENAME = "/agent-config.txt";
 
 	/*
@@ -65,6 +68,9 @@ public class SampleServlet extends HttpServlet {
 		response.getWriter().flush();
 	}
 
+	/*
+	 * read an OpenToken from an incoming HTTP request
+	 */
 	@SuppressWarnings("unchecked")
 	protected Map<String, String> readOpenToken(HttpServletRequest request)
 			throws IOException {
@@ -80,6 +86,9 @@ public class SampleServlet extends HttpServlet {
 		return userInfo;
 	}
 
+	/*
+	 * handle a request from an unauthenticated browser/user
+	 */
 	protected Map<String, String> handleUnauthenticatedSession(HttpServletRequest request,
 			HttpServletResponse response, Properties props) throws IOException {
 		// try and read an OpenToken from the incoming request
@@ -104,6 +113,10 @@ public class SampleServlet extends HttpServlet {
 		return userInfo;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		Properties props = getConfiguration(request, CONFIGURATION_FILENAME);
@@ -113,11 +126,18 @@ public class SampleServlet extends HttpServlet {
 		handleExistingSession(request, response, props, userInfo);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
 
+	/*
+	 * return the URL that is currently accessed
+	 */
 	protected String getCurrentURL(HttpServletRequest request) {
 		StringBuffer url = new StringBuffer();
 		url.append(request.getScheme());
