@@ -21,7 +21,9 @@ public class SampleServlet extends HttpServlet {
 	private static final String CONFIGURATION_FILENAME = "/sample.properties";
 	/* path to the OpenToken agent configuration file, relative to WAR */
 	private static final String AGENT_CONFIGURATION_FILENAME = "/agent-config.txt";
-
+	/* special value that indicates the subject in the OpenToken is anonyous/unauthenticated */
+	private static final String ANONYMOUS_SUBJECT_VALUE = "userId";
+	
 	/*
 	 * get the application's configuration from a properties file
 	 */
@@ -50,8 +52,18 @@ public class SampleServlet extends HttpServlet {
 	protected void handleExistingSession(HttpServletRequest request,
 			HttpServletResponse response, Properties props,
 			Map<String, String> userInfo) throws IOException {
+		
+		// when redirecting to PingFederate
 		if (userInfo == null) return;
-		// String username = (String)userInfo.get(Agent.TOKEN_SUBJECT);
+		
+		// detect anonymous login (interactive=false)
+		String username = (String)userInfo.get(Agent.TOKEN_SUBJECT);
+		if (username.equals(ANONYMOUS_SUBJECT_VALUE)) {
+			userInfo.clear();
+			userInfo.put(Agent.TOKEN_SUBJECT, "ANONYMOUS");
+		}
+
+		// printout user details
 		response.getWriter().print("<html><head><title>");
 		response.getWriter().print(props.getProperty("title"));
 		response.getWriter().print("</title></head><body>");
