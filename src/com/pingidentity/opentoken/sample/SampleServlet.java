@@ -56,6 +56,15 @@ public class SampleServlet extends HttpServlet {
 		// when redirecting to PingFederate
 		if (userInfo == null) return;
 		
+		if (request.getParameter("logout") != null) {
+			HttpSession session = request.getSession();
+			session.removeAttribute(USER_INFO);
+			StringBuffer url = new StringBuffer(props.getProperty("pf.base.url"));
+			url.append(props.getProperty("logout.path"));
+			response.sendRedirect(url.toString());
+			return;
+		}
+
 		// detect anonymous login (interactive=false)
 		String username = (String)userInfo.get(Agent.TOKEN_SUBJECT);
 		if (username.equals(ANONYMOUS_SUBJECT_VALUE)) {
@@ -76,6 +85,12 @@ public class SampleServlet extends HttpServlet {
 							+ "</td></tr>");
 		}
 		response.getWriter().print("</table></p>");
+		
+		StringBuffer url = new StringBuffer(props.getProperty("pf.base.url"));
+		url.append(props.getProperty("logout.path"));
+		
+		response.getWriter().print("<p><a href=\"" + request.getContextPath() + "/?logout=true" + "\">Logout</a></p>");
+		
 		response.getWriter().print("</body></html>");
 		response.getWriter().flush();
 	}
@@ -107,7 +122,8 @@ public class SampleServlet extends HttpServlet {
 		Map<String, String> userInfo = readOpenToken(request);
 		if (userInfo == null) {
 			// send the user off to PingFederate to authenticate
-			StringBuffer url = new StringBuffer(props.getProperty("startsso"));
+			StringBuffer url = new StringBuffer(props.getProperty("pf.base.url"));
+			url.append(props.getProperty("start.sso.path"));
 			url.append("?");
 			url.append("SpSessionAuthnAdapterId="
 					+ URLEncoder.encode(props.getProperty("adapterid"), "UTF-8"));
